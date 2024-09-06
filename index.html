@@ -46,8 +46,12 @@
                 },
                 onScanSuccess,
                 onScanError)
+            .then(() => {
+                console.log("Câmera iniciada com sucesso.");
+            })
             .catch(err => {
                 console.error(`Erro ao iniciar a câmera: ${err}`);
+                alert("Não foi possível acessar a câmera. Verifique as permissões.");
             });
         });
     </script>
