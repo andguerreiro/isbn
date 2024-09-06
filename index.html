@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="/images/logo.png" type="image/png">
+  <link rel="icon" href="logo.png" type="image/png">
   <title>ISBN</title>
   <script src="https://unpkg.com/@zxing/library@latest"></script>
   <style>
@@ -18,8 +18,8 @@
   <div>
     <h2>Escanear ISBN</h2>
     <form id="searchForm" target="_blank" action="https://www.google.com/search">
-      <input type="hidden" name="hl" value="pt-BR"> <!-- Define o idioma para português -->
-      <input type="search" name="q" autofocus id="searchInput" placeholder="Pesquisar no Google">
+      <input type="hidden" name="hl" value="pt-BR">
+      <input type="search" name="q" autofocus id="searchInput">
       <p>
         <button type="button" onclick="startScanning()">Escanear ISBN</button>
         <button type="reset">Limpar</button>
