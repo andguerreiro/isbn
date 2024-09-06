@@ -1,9 +1,8 @@
 const CACHE_NAME = 'isbn-scanner-cache-v1';
 const urlsToCache = [
   '/',
-  '/index.html',  // Altere para o nome do seu arquivo HTML
-  '/logo.png',     // Altere para o caminho correto do seu ícone
-  // Adicione outros arquivos que você deseja armazenar em cache
+  'index.html',
+  'logo.png',
 ];
 
 // Instala o Service Worker e faz o cache dos arquivos
