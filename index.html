@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,53 +7,75 @@
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
         #reader {
-            width: 100%;
-            height: 400px;
             display: none; /* Esconde o leitor inicialmente */
-        }
-        #startButton {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
+            width: 100%;
+            height: auto;
         }
     </style>
 </head>
 <body>
-    <h1>Escaneie o ISBN</h1>
-    <button id="startButton">Iniciar Câmera</button>
-    <div id="reader"></div>
+    <div>
+        <h2>Scanner de ISBN</h2>
+        <form id="searchForm" target="_blank" action="https://www.estantevirtual.com.br/sebos-e-livreiros/sebomelivro">
+            <input type="hidden" name="nsCat" value="Natural">
+            <input type="hidden" name="sellers" value="1002074">
+            <input type="search" name="q" autofocus id="searchInput">
+            <p>
+                <button type="submit">Pesquisar</button>
+                <button type="button" onclick="startScanning()">Escanear ISBN</button>
+                <button type="reset">Limpar</button>
+            </p>
+        </form>
+        <div id="reader"></div>
+    </div>
+
     <script>
-        function onScanSuccess(decodedText, decodedResult) {
-            // Quando um ISBN é escaneado, redireciona para o Google Shopping
-            window.open(`https://www.google.com/search?tbm=shop&q=${decodedText}`, '_blank');
-        }
-
-        function onScanError(errorMessage) {
-            // Você pode lidar com erros de escaneamento aqui
-            console.warn(`Erro de escaneamento: ${errorMessage}`);
-        }
-
         const html5QrCode = new Html5Qrcode("reader");
 
-        document.getElementById("startButton").addEventListener("click", function() {
-            // Mostra o leitor e inicia a câmera
+        async function startScanning() {
             document.getElementById("reader").style.display = "block";
-            html5QrCode.start(
-                { facingMode: { exact: "environment" } }, // Câmera traseira
-                {
-                    fps: 10,    // Frames por segundo
-                    qrbox: 250  // Tamanho da área de escaneamento
-                },
-                onScanSuccess,
-                onScanError)
-            .then(() => {
-                console.log("Câmera iniciada com sucesso.");
-            })
-            .catch(err => {
-                console.error(`Erro ao iniciar a câmera: ${err}`);
-                alert("Não foi possível acessar a câmera. Verifique as permissões.");
+
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                if (devices.length === 0) {
+                    alert("Nenhuma câmera detectada.");
+                    return;
+                }
+
+                const selectedDeviceId = devices.find(device => 
+                    device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('rear')
+                )?.id || devices[0].id;
+
+                html5QrCode.start(
+                    selectedDeviceId,
+                    {
+                        fps: 10,
+                        qrbox: 250
+                    },
+                    (decodedText, decodedResult) => {
+                        document.getElementById('searchInput').value = decodedText;
+                        stopScanning();
+                        document.getElementById('searchForm').submit(); // Submeter o formulário automaticamente
+                    },
+                    (errorMessage) => {
+                        console.warn(`Erro de escaneamento: ${errorMessage}`);
+                    }
+                ).catch(err => {
+                    console.error(`Erro ao iniciar a câmera: ${err}`);
+                    alert("Erro ao tentar acessar a câmera. Verifique as permissões.");
+                });
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao tentar escanear o ISBN. Verifique se a câmera está acessível e se você concedeu as permissões necessárias.");
+            }
+        }
+
+        function stopScanning() {
+            document.getElementById("reader").style.display = "none";
+            html5QrCode.stop().catch(err => {
+                console.error(`Erro ao parar a câmera: ${err}`);
             });
-        });
+        }
     </script>
 </body>
 </html>
