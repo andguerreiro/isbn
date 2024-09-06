@@ -9,11 +9,18 @@
         #reader {
             width: 100%;
             height: 400px;
+            display: none; /* Esconde o leitor inicialmente */
+        }
+        #startButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <h1>Escaneie o ISBN</h1>
+    <button id="startButton">Iniciar Câmera</button>
     <div id="reader"></div>
     <script>
         function onScanSuccess(decodedText, decodedResult) {
@@ -28,17 +35,20 @@
 
         const html5QrCode = new Html5Qrcode("reader");
 
-        // Inicia a câmera traseira
-        html5QrCode.start(
-            { facingMode: { exact: "environment" } }, // Câmera traseira
-            {
-                fps: 10,    // Frames por segundo
-                qrbox: 250  // Tamanho da área de escaneamento
-            },
-            onScanSuccess,
-            onScanError)
-        .catch(err => {
-            console.error(`Erro ao iniciar a câmera: ${err}`);
+        document.getElementById("startButton").addEventListener("click", function() {
+            // Mostra o leitor e inicia a câmera
+            document.getElementById("reader").style.display = "block";
+            html5QrCode.start(
+                { facingMode: { exact: "environment" } }, // Câmera traseira
+                {
+                    fps: 10,    // Frames por segundo
+                    qrbox: 250  // Tamanho da área de escaneamento
+                },
+                onScanSuccess,
+                onScanError)
+            .catch(err => {
+                console.error(`Erro ao iniciar a câmera: ${err}`);
+            });
         });
     </script>
 </body>
