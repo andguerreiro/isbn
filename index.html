@@ -7,73 +7,40 @@
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
         #reader {
-            display: none; /* Esconde o leitor inicialmente */
             width: 100%;
             height: auto;
         }
     </style>
 </head>
 <body>
-    <div>
-        <h2>Scanner de ISBN</h2>
-        <form id="searchForm" target="_blank" action="https://www.estantevirtual.com.br/sebos-e-livreiros/sebomelivro">
-            <input type="hidden" name="nsCat" value="Natural">
-            <input type="hidden" name="sellers" value="1002074">
-            <input type="search" name="q" autofocus id="searchInput">
-            <p>
-                <button type="submit">Pesquisar</button>
-                <button type="button" onclick="startScanning()">Escanear ISBN</button>
-                <button type="reset">Limpar</button>
-            </p>
-        </form>
-        <div id="reader"></div>
-    </div>
+    <h2>Escaneie o ISBN</h2>
+    <div id="reader"></div>
 
     <script>
         const html5QrCode = new Html5Qrcode("reader");
 
-        async function startScanning() {
-            document.getElementById("reader").style.display = "block";
+        // Função para iniciar a câmera ao carregar a página
+        window.onload = function() {
+            startScanning();
+        };
 
-            try {
-                const devices = await Html5Qrcode.getCameras();
-                if (devices.length === 0) {
-                    alert("Nenhuma câmera detectada.");
-                    return;
+        function startScanning() {
+            html5QrCode.start(
+                { facingMode: { exact: "environment" } }, // Câmera traseira
+                {
+                    fps: 10,    // Frames por segundo
+                    qrbox: 250  // Tamanho da área de escaneamento
+                },
+                (decodedText, decodedResult) => {
+                    console.log(`Código escaneado: ${decodedText}`);
+                    // Aqui você pode adicionar lógica para lidar com o ISBN escaneado
+                },
+                (errorMessage) => {
+                    console.warn(`Erro de escaneamento: ${errorMessage}`);
                 }
-
-                const selectedDeviceId = devices.find(device => 
-                    device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('rear')
-                )?.id || devices[0].id;
-
-                html5QrCode.start(
-                    selectedDeviceId,
-                    {
-                        fps: 10,
-                        qrbox: 250
-                    },
-                    (decodedText, decodedResult) => {
-                        document.getElementById('searchInput').value = decodedText;
-                        stopScanning();
-                        document.getElementById('searchForm').submit(); // Submeter o formulário automaticamente
-                    },
-                    (errorMessage) => {
-                        console.warn(`Erro de escaneamento: ${errorMessage}`);
-                    }
-                ).catch(err => {
-                    console.error(`Erro ao iniciar a câmera: ${err}`);
-                    alert("Erro ao tentar acessar a câmera. Verifique as permissões.");
-                });
-            } catch (err) {
-                console.error(err);
-                alert("Erro ao tentar escanear o ISBN. Verifique se a câmera está acessível e se você concedeu as permissões necessárias.");
-            }
-        }
-
-        function stopScanning() {
-            document.getElementById("reader").style.display = "none";
-            html5QrCode.stop().catch(err => {
-                console.error(`Erro ao parar a câmera: ${err}`);
+            ).catch(err => {
+                console.error(`Erro ao iniciar a câmera: ${err}`);
+                alert("Erro ao tentar acessar a câmera. Verifique as permissões.");
             });
         }
     </script>
