@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/images/logo.png" type="image/png">
   <title>ISBN</title>
-  <link rel="icon" href="logo.png" type="image/png">
-  <link rel="manifest" href="manifest.json">
   <script src="https://unpkg.com/@zxing/library@latest"></script>
   <style>
     #video {
@@ -17,9 +16,10 @@
 </head>
 <body>
   <div>
-    <h2>Escaneie o ISBN</h2>
+    <h2>Escanear ISBN</h2>
     <form id="searchForm" target="_blank" action="https://www.google.com/search">
-      <input type="search" name="q" autofocus id="searchInput" placeholder="Digite o ISBN">
+      <input type="hidden" name="hl" value="pt-BR"> <!-- Define o idioma para português -->
+      <input type="search" name="q" autofocus id="searchInput" placeholder="Pesquisar no Google">
       <p>
         <button type="button" onclick="startScanning()">Escanear ISBN</button>
         <button type="reset">Limpar</button>
@@ -64,17 +64,6 @@
     function stopScanning() {
       videoElement.style.display = 'none';
       codeReader.reset();
-    }
-
-    // Registro do Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').then(registration => {
-          console.log('Service Worker registrado com sucesso:', registration);
-        }).catch(error => {
-          console.log('Falha ao registrar o Service Worker:', error);
-        });
-      });
     }
   </script>
 </body>
