@@ -1,7 +1,7 @@
 {
   "name": "Escaneador de ISBN",
   "short_name": "ISBN Scanner",
-  "start_url": "/index.html",  // Altere para o caminho correto do seu arquivo HTML
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
