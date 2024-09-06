@@ -1,48 +1,69 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanner de ISBN</title>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
-    <style>
-        #reader {
-            width: 100%;
-            height: auto;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISBN</title>
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <style>
+    #video {
+      display: none;
+      width: 100%;
+      height: auto;
+    }
+  </style>
 </head>
 <body>
-    <h2>Escaneie o ISBN</h2>
-    <div id="reader"></div>
+  <div>
+    <h2>Escaneie o ISBN</a></h2>
+    <form id="searchForm" target="_blank" action="https://www.google.com/search">
+      <input type="hidden" name="tbm" value="shop"> <!-- Define que a busca será na aba de shopping -->
+      <input type="search" name="q" autofocus id="searchInput" placeholder="Digite o ISBN ou nome do produto">
+      <p>
+        <button type="button" onclick="startScanning()">Escanear ISBN</button>
+        <button type="reset">Limpar</button>
+      </p>
+    </form>
+    <video id="video" autoplay></video>
+  </div>
 
-    <script>
-        const html5QrCode = new Html5Qrcode("reader");
+  <script>
+    const codeReader = new ZXing.BrowserBarcodeReader();
+    const videoElement = document.getElementById('video');
 
-        // Função para iniciar a câmera ao carregar a página
-        window.onload = function() {
-            startScanning();
-        };
+    async function startScanning() {
+      videoElement.style.display = 'block';
 
-        function startScanning() {
-            html5QrCode.start(
-                { facingMode: { exact: "environment" } }, // Câmera traseira
-                {
-                    fps: 10,    // Frames por segundo
-                    qrbox: 250  // Tamanho da área de escaneamento
-                },
-                (decodedText, decodedResult) => {
-                    console.log(`Código escaneado: ${decodedText}`);
-                    // Aqui você pode adicionar lógica para lidar com o ISBN escaneado
-                },
-                (errorMessage) => {
-                    console.warn(`Erro de escaneamento: ${errorMessage}`);
-                }
-            ).catch(err => {
-                console.error(`Erro ao iniciar a câmera: ${err}`);
-                alert("Erro ao tentar acessar a câmera. Verifique as permissões.");
-            });
-        }
-    </script>
+      try {
+        const devices = await codeReader.listVideoInputDevices();
+        if (!devices.length) return alert('Nenhuma câmera detectada.');
+
+        const selectedDeviceId = devices.find(device => 
+          device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('rear')
+        )?.deviceId || devices[0].deviceId;
+
+        codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
+          if (result) {
+            document.getElementById('searchInput').value = result.text;
+            stopScanning();
+            document.getElementById('searchForm').submit(); // Submeter o formulário automaticamente
+          } else if (err && !(err instanceof ZXing.NotFoundException)) {
+            console.error(err);
+            alert('Erro ao tentar escanear o ISBN. Verifique se a câmera está acessível e se você concedeu as permissões necessárias.');
+            stopScanning();
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao tentar escanear o ISBN. Verifique se a câmera está acessível e se você concedeu as permissões necessárias.');
+        stopScanning();
+      }
+    }
+
+    function stopScanning() {
+      videoElement.style.display = 'none';
+      codeReader.reset();
+    }
+  </script>
 </body>
 </html>
