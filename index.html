@@ -11,19 +11,11 @@
       display: none;
       width: 100%;
       height: auto;
-      border: 2px solid #ccc;
-      border-radius: 4px;
-    }
-    #container {
-      position: relative;
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
     }
   </style>
 </head>
 <body>
-  <div id="container">
+  <div>
     <h2>Pesquisar</h2>
     <form id="searchForm" target="_blank" action="https://www.google.com/search">
       <input type="hidden" name="hl" value="pt-BR">
@@ -39,8 +31,6 @@
   <script>
     const codeReader = new ZXing.BrowserBarcodeReader();
     const videoElement = document.getElementById('video');
-    const searchInput = document.getElementById('searchInput');
-    const searchForm = document.getElementById('searchForm');
 
     async function startScanning() {
       videoElement.style.display = 'block';
@@ -55,12 +45,13 @@
 
         codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
           if (result) {
-            searchInput.value = result.text;
+            document.getElementById('searchInput').value = result.text;
             stopScanning();
-            searchForm.submit(); // Submeter o formulário automaticamente
+            document.getElementById('searchForm').submit(); // Submeter o formulário automaticamente
           } else if (err && !(err instanceof ZXing.NotFoundException)) {
             console.error(err);
             alert('Erro ao tentar escanear o ISBN. Verifique se a câmera está acessível e se você concedeu as permissões necessárias.');
+            stopScanning();
           }
         });
       } catch (err) {
