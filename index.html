@@ -43,7 +43,11 @@
           device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('rear')
         )?.deviceId || devices[0].deviceId;
 
-        codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
+        // Increase scanning tolerance for smaller codes
+        const hints = new ZXing.DecodeHints(ZXing.HintType.TRY_HARDER);
+        hints.add(ZXing.HintType.ALLOWED_LENGTHS, [10, 13]); // Adjust for ISBN-10 and ISBN-13
+
+        codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, hints, (result, err) => {
           if (result) {
             document.getElementById('searchInput').value = result.text;
             stopScanning();
