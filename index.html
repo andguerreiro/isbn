@@ -12,38 +12,28 @@
       width: 100%;
       height: auto;
     }
-    #overlay {
-      position: absolute;
-      border: 2px solid red;
-      display: none;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body>
   <div>
-    <h2>Escanear ISBN</h2>
+    <h2>Pesquisar</h2>
     <form id="searchForm" target="_blank" action="https://www.google.com/search">
       <input type="hidden" name="hl" value="pt-BR">
       <input type="search" name="q" autofocus id="searchInput">
       <p>
         <button type="button" onclick="startScanning()">Escanear ISBN</button>
-        <button type="button" onclick="stopScanning()">Parar Escaneamento</button>
         <button type="reset">Limpar</button>
       </p>
     </form>
     <video id="video" autoplay></video>
-    <div id="overlay"></div>
   </div>
 
   <script>
     const codeReader = new ZXing.BrowserBarcodeReader();
     const videoElement = document.getElementById('video');
-    const overlay = document.getElementById('overlay');
 
     async function startScanning() {
       videoElement.style.display = 'block';
-      overlay.style.display = 'block';
 
       try {
         const devices = await codeReader.listVideoInputDevices();
@@ -73,7 +63,6 @@
 
     function stopScanning() {
       videoElement.style.display = 'none';
-      overlay.style.display = 'none';
       codeReader.reset();
     }
   </script>
