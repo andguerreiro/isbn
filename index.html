@@ -11,11 +11,30 @@
       display: none;
       width: 100%;
       height: auto;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+    }
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+      border: 2px solid #00f;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+    #container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
     }
   </style>
 </head>
 <body>
-  <div>
+  <div id="container">
     <h2>Escanear ISBN</h2>
     <form id="searchForm" target="_blank" action="https://www.google.com/search">
       <input type="hidden" name="hl" value="pt-BR">
@@ -26,14 +45,19 @@
       </p>
     </form>
     <video id="video" autoplay></video>
+    <div id="overlay"></div>
   </div>
 
   <script>
     const codeReader = new ZXing.BrowserBarcodeReader();
     const videoElement = document.getElementById('video');
+    const overlay = document.getElementById('overlay');
+    const searchInput = document.getElementById('searchInput');
+    const searchForm = document.getElementById('searchForm');
 
     async function startScanning() {
       videoElement.style.display = 'block';
+      overlay.style.display = 'block';
 
       try {
         const devices = await codeReader.listVideoInputDevices();
@@ -45,13 +69,12 @@
 
         codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
           if (result) {
-            document.getElementById('searchInput').value = result.text;
+            searchInput.value = result.text;
             stopScanning();
-            document.getElementById('searchForm').submit(); // Submeter o formulário automaticamente
+            searchForm.submit(); // Submeter o formulário automaticamente
           } else if (err && !(err instanceof ZXing.NotFoundException)) {
             console.error(err);
             alert('Erro ao tentar escanear o ISBN. Verifique se a câmera está acessível e se você concedeu as permissões necessárias.');
-            stopScanning();
           }
         });
       } catch (err) {
@@ -63,6 +86,7 @@
 
     function stopScanning() {
       videoElement.style.display = 'none';
+      overlay.style.display = 'none';
       codeReader.reset();
     }
   </script>
