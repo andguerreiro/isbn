@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Código ISBN</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3498db">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="logo.png">
+
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-color: #f4f4f9;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --input-border: #cccccc;
+      --accent-color: #3498db;
+      --success-color: #2ecc71;
+      --danger-color: #e74c3c;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #e0e0e0;
+        --input-border: #444444;
+        --accent-color: #4facfe;
+      }
+    }
+
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      padding: 15px; 
+      background-color: var(--bg-color); 
+      color: var(--text-color);
+      min-height: 100vh;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    .container { 
+      max-width: 500px; 
+      width: 100%; 
+      text-align: center; 
+      background-color: var(--card-bg); 
+      padding: 20px; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+      margin-top: 5px;
+    }
+
+    .brand-logo {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 5px;
+      border-radius: 10px;
+    }
+    
+    #scanner-container { 
+      position: relative; 
+      width: 100%; 
+      max-width: 400px; 
+      max-height: 35vh; 
+      margin: 15px auto; 
+      display: none; 
+      border-radius: 12px; 
+      overflow: hidden; 
+      border: 3px solid var(--accent-color); 
+      background: #000;
+    }
+
+    #video { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      display: block; 
+    }
+    
+    .laser { 
+      position: absolute; 
+      top: 50%; 
+      left: 0; 
+      width: 100%; 
+      height: 2px; 
+      background-color: #ff3e3e; 
+      box-shadow: 0 0 8px #ff3e3e; 
+      animation: scan 2s infinite ease-in-out; 
+      z-index: 10;
+    }
+
+    @keyframes scan {
+      0%, 100% { top: 15%; }
+      50% { top: 85%; }
+    }
+
+    input[type="text"] { 
+      width: 100%; 
+      padding: 12px; 
+      margin: 10px 0; 
+      border: 2px solid var(--input-border); 
+      border-radius: 8px; 
+      font-size: 18px; 
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      text-align: center;
+      outline: none;
+    }
+
+    button { 
+      padding: 12px 20px; 
+      cursor: pointer; 
+      border: none; 
+      border-radius: 8px; 
+      font-weight: bold; 
+      font-size: 16px;
+      width: 100%;
+      max-width: 280px;
+      margin: 5px auto;
+      display: block;
+    }
+
+    .btn-scan { background-color: var(--accent-color); color: white; }
+    .btn-stop { background-color: var(--danger-color); color: white; }
+    .btn-search { background-color: var(--success-color); color: white; display: none; }
+
+    #timeout-msg {
+      display: none;
+      background: rgba(231, 76, 60, 0.1);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid var(--danger-color);
+    }
+
+    h2 { margin: 5px 0; font-size: 1.3rem; }
+    p { font-size: 0.9rem; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <img src="logo.png" alt="Logo ISBN" class="brand-logo">
+  <h2>Código ISBN</h2>
+  
+  <div id="timeout-msg">
+    <p style="color: var(--danger-color); font-weight: bold; margin-bottom: 5px;">Não foi possível escanear...</p>
+    <p>Digite ou tente escanear novamente.</p>
+  </div>
+
+  <form id="searchForm" onsubmit="handleManualSearch(event)">
+    <input type="text" id="searchInput" 
+           placeholder="Aguardando leitura..." 
+           inputmode="numeric" 
+           pattern="[0-9]*"
+           oninput="showSearchButton()">
+    
+    <button type="button" class="btn-scan" id="btnStart" onclick="startScanning()">Escanear Código</button>
+    <button type="submit" class="btn-search" id="btnSearch">Pesquisar Código Digitado</button>
+    <button type="button" class="btn-stop" id="btnStop" onclick="stopScanning()" style="display:none;">Cancelar Câmera</button>
+  </form>
+
+  <div id="scanner-container">
+    <div class="laser"></div>
+    <video id="video"></video>
+  </div>
+</div>
+
+<script>
+  // Registro do Service Worker para PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log("Service Worker registrado!"))
+      .catch(err => console.error("Erro no Service Worker", err));
+  }
+
+  const codeReader = new ZXing.BrowserBarcodeReader();
+  const videoElement = document.getElementById('video');
+  const scannerContainer = document.getElementById('scanner-container');
+  const btnStart = document.getElementById('btnStart');
+  const btnStop = document.getElementById('btnStop');
+  const btnSearch = document.getElementById('btnSearch');
+  const searchInput = document.getElementById('searchInput');
+  const timeoutMsg = document.getElementById('timeout-msg');
+
+  let scanTimer;
+
+  async function startScanning() {
+    timeoutMsg.style.display = 'none';
+    scannerContainer.style.display = 'block';
+    btnStart.style.display = 'none';
+    btnStop.style.display = 'block';
+    btnSearch.style.display = 'none';
+    searchInput.placeholder = "Escaneando...";
+    searchInput.value = "";
+
+    scanTimer = setTimeout(() => {
+        stopScanning();
+        timeoutMsg.style.display = 'block';
+        btnSearch.style.display = 'block';
+        searchInput.placeholder = "Digite o código aqui";
+        searchInput.focus();
+    }, 10000);
+
+    try {
+      const devices = await codeReader.listVideoInputDevices();
+      if (!devices.length) return alert('Câmera não encontrada.');
+
+      const selectedDeviceId = devices.find(d => 
+        d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('traseira')
+      )?.deviceId || devices[0].deviceId;
+
+      await codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
+        if (result) {
+          clearTimeout(scanTimer);
+          searchInput.value = result.text;
+          performSearch(result.text);
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      stopScanning();
+    }
+  }
+
+  function showSearchButton() {
+      btnSearch.style.display = searchInput.value.length > 0 ? 'block' : 'none';
+  }
+
+  function handleManualSearch(event) {
+      event.preventDefault();
+      if (searchInput.value) {
+          performSearch(searchInput.value);
+      }
+  }
+
+  function performSearch(code) {
+      stopScanning();
+      const searchUrl = `https://www.google.com/search?q=isbn+${code}&hl=pt-BR`;
+      window.location.href = searchUrl;
+  }
+
+  function stopScanning() {
+    clearTimeout(scanTimer);
+    codeReader.reset();
+    scannerContainer.style.display = 'none';
+    btnStart.style.display = 'block';
+    btnStop.style.display = 'none';
+    btnStart.innerText = "Tentar Escanear Novamente";
+  }
+</script>
+
+</body>
+</html>
