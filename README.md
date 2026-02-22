@@ -2,7 +2,7 @@
 
 Aponte a câmera do seu smartphone para o ISBN de um livro para pesquisar sobre ele na internet.
 
-Acesse mais rápido pelo seu navegador em: [is.gd/isbnscan](https://is.gd/isbnscan)
+Acesse pelo seu navegador em: [https://andguerreiro.codeberg.page/isbn/](https://andguerreiro.codeberg.page/isbn/)
 
 ## 🛠️ Tecnologias e Créditos
 
