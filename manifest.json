@@ -1,7 +1,7 @@
 {
   "name": "ISBN Scanner",
   "short_name": "ISBN Scanner",
-  "description": "Scanner de livros via código de barras",
+  "description": "Aponte a câmera do seu smartphone para o ISBN de um livro para pesquisar sobre ele na internet",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
