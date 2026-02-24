@@ -1,6 +1,6 @@
 {
-  "name": "Código ISBN",
-  "short_name": "ISBN Scan",
+  "name": "ISBN Scanner",
+  "short_name": "ISBN Scanner",
   "description": "Scanner de livros via código de barras",
   "start_url": "index.html",
   "display": "standalone",
