@@ -8,7 +8,6 @@ Acesse pelo seu navegador em: [is.gd/isbnscanner](https://is.gd/isbnscanner)
 
 * **Leitura de Código de Barras:** Desenvolvido utilizando a biblioteca open-source [ZXing (Zebra Crossing)](https://github.com/zxing-js/library).
 * **Logo:** Criado por **Vectorslab** e baixado de [flaticon.com](https://flaticon.com).
-* **Desenvolvimento:** Criado e atualizado por Andrews Guerreiro, livreiro do Sebo Menos Telas.
 
 ## 📄 Licença
 
