@@ -1,6 +1,6 @@
 # ISBN Scanner
 
-Aponte a câmera do seu smartphone para o ISBN de um livro para pesquisar sobre ele na internet.
+Aponte a câmera do seu smartphone para o ISBN de um livro para pesquisar ele na internet.
 
 ## 🛠️ Tecnologias e Créditos
 
