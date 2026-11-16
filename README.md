@@ -1,8 +1,8 @@
-# ISBN Scanner
+# ISBN Scan
 
 Aponte a câmera do seu smartphone para o ISBN de um livro para pesquisar ele na internet.
 
-Acesse via: [andguerreiro.github.io/isbn/](https://andguerreiro.github.io/isbn/)
+Acesse via: [isbnscan.pages.dev](https://isbnscan.pages.dev/)
 
 ## 🛠️ Tecnologias e Créditos
 
